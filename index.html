@@ -249,15 +249,32 @@ function closeContact(){
     document.getElementById('send-success').style.display='none';
   },300);
 }
-function sendForm(){
+async function sendForm(){
   const name=document.getElementById('f-name').value.trim();
   const email=document.getElementById('f-email').value.trim();
+  const phone=document.getElementById('f-phone').value.trim();
   const msg=document.getElementById('f-msg').value.trim();
   if(!name||!email||!msg){alert('Please fill in name, email and message.');return}
-  // TODO: connect to Formspree / EmailJS / backend
-  document.getElementById('contact-form').style.display='none';
-  document.getElementById('send-success').style.display='block';
-  setTimeout(closeContact,2500);
+  const btn=document.querySelector('.send-btn');
+  btn.textContent='Sending…';btn.disabled=true;
+  try{
+    const res=await fetch('https://formspree.io/f/xreyvkjl',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({name,email,phone,message:msg})
+    });
+    if(res.ok){
+      document.getElementById('contact-form').style.display='none';
+      document.getElementById('send-success').style.display='block';
+      setTimeout(closeContact,2500);
+    } else {
+      alert('Something went wrong. Please try again.');
+      btn.textContent='Send message →';btn.disabled=false;
+    }
+  } catch(e){
+    alert('Something went wrong. Please try again.');
+    btn.textContent='Send message →';btn.disabled=false;
+  }
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeContact()});
 </script>
